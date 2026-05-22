@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(New-Item -ItemType File -Path '__TRACKED_VAR__\\\\__init__.py' -Force)",
+      "Bash(python -c \"import fastapi; print\\('fastapi:', fastapi.__version__\\)\")",
+      "Bash(python -c \"import sqlalchemy; print\\('sqlalchemy:', sqlalchemy.__version__\\)\")",
+      "Bash(python -c \"import alembic; print\\('alembic:', alembic.__version__\\)\")",
+      "Bash(python -c \"import uvicorn, passlib, jose, pydantic, alembic; print\\('All core deps OK'\\)\")",
+      "Bash(pip install *)",
+      "Bash(python -c \"import urllib.request; r = urllib.request.urlopen\\('http://localhost:8000/health'\\); print\\(r.read\\(\\).decode\\(\\)\\)\")",
+      "PowerShell(cd \"C:\\\\Users\\\\Humbe\\\\Desktop\\\\Segunda vida\\\\frontend\"; C:\\\\flutter\\\\bin\\\\flutter.bat analyze --no-fatal-infos 2>&1 | Where-Object { $_ -match \"error\" } | Select-Object -First 30)",
+      "PowerShell(cd \"C:\\\\Users\\\\Humbe\\\\Desktop\\\\Segunda vida\\\\frontend\"; $output = C:\\\\flutter\\\\bin\\\\flutter.bat analyze --no-fatal-infos 2>&1; $output | Where-Object { $_ -match \"^\\\\s+error\" } | Select-Object -First 20; Write-Host \"---SUMMARY---\"; $output | Select-Object -Last 5)",
+      "PowerShell(cd \"C:\\\\Users\\\\Humbe\\\\Desktop\\\\Segunda vida\\\\frontend\"; $output = C:\\\\flutter\\\\bin\\\\flutter.bat analyze 2>&1; $output | Where-Object { $_ -match \"error\\\\s+-\" } | Select-Object -First 30; Write-Host \"---\"; $output | Select-Object -Last 3)",
+      "PowerShell(cd \"C:\\\\Users\\\\Humbe\\\\Desktop\\\\Segunda vida\\\\frontend\"; $output = C:\\\\flutter\\\\bin\\\\flutter.bat analyze 2>&1; $errors = $output | Where-Object { $_ -match \"^\\\\s+error\\\\s+-\" }; if \\($errors\\) { Write-Host \"ERRORS FOUND:\"; $errors } else { Write-Host \"No errors - only warnings/infos\" })",
+      "Bash(flutter analyze *)",
+      "PowerShell(& \"C:\\\\flutter\\\\bin\\\\flutter.bat\" analyze --no-fatal-infos 2>&1 | Select-Object -Last 30)",
+      "PowerShell(cd \"C:\\\\Users\\\\Humbe\\\\Desktop\\\\Segunda vida\\\\frontend\"; & \"C:\\\\flutter\\\\bin\\\\flutter.bat\" analyze --no-fatal-infos 2>&1 | Where-Object { $_ -match \"error|Error\" } | Select-Object -First 30)",
+      "PowerShell(Get-Content \"C:\\\\Users\\\\Humbe\\\\AppData\\\\Local\\\\Temp\\\\analyze_out.txt\" | Where-Object { $_ -match \"warning\" } | Select-Object -First 15)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\Humbe\\\\Desktop\\\\Segunda vida\\\\frontend\\\\lib\\\\features\" -Directory)",
+      "Bash(Select-Object -ExpandProperty Name)",
+      "Bash(powershell -Command ' *)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\Humbe\\\\Desktop\\\\Segunda vida\" -Recurse -Directory -Name)",
+      "Bash(Select-Object -First 30)",
+      "Bash(xargs -I {} basename {})",
+      "PowerShell(New-Item *)"
+    ]
+  }
+}

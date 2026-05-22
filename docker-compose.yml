@@ -1,0 +1,61 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: segunda_vida_db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-segunda_vida}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-segunda_vida_secret}
+      POSTGRES_DB: ${POSTGRES_DB:-segunda_vida}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-segunda_vida}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: segunda_vida_redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: segunda_vida_backend
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-segunda_vida}:${POSTGRES_PASSWORD:-segunda_vida_secret}@db:5432/${POSTGRES_DB:-segunda_vida}
+      REDIS_URL: redis://redis:6379
+      SECRET_KEY: ${SECRET_KEY:-change-me-in-production-use-long-random-string}
+      ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 1440
+      REFRESH_TOKEN_EXPIRE_DAYS: 30
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      CORS_ORIGINS: '["http://localhost:3000","http://localhost:8080","http://127.0.0.1:5500"]'
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
