@@ -382,7 +382,7 @@ class _EmptyLearning extends StatelessWidget {
         padding: const EdgeInsets.all(32),
         child: Column(
           children: [
-            const Text('ðŸ“š', style: TextStyle(fontSize: 64)),
+            const Text('📚', style: TextStyle(fontSize: 64)),
             const SizedBox(height: 16),
             Text(s.emptyLibrary, style: Theme.of(context).textTheme.headlineMedium),
             const SizedBox(height: 8),

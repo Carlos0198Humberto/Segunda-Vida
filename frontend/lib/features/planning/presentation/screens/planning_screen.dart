@@ -197,7 +197,7 @@ class _WeekHeader extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '${DateFormat('MMM d').format(weekStart)} â€“ ${DateFormat('MMM d').format(weekEnd)}',
+                '${DateFormat('MMM d').format(weekStart)} – ${DateFormat('MMM d').format(weekEnd)}',
                 style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16),
               ),
               Text(

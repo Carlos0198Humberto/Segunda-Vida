@@ -833,7 +833,7 @@ class _QuickActionItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => context.go(path),
+      onTap: () => context.push(path),
       child: AppCard(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
         child: Column(

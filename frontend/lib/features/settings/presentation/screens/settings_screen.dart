@@ -166,25 +166,7 @@ class SettingsScreen extends ConsumerWidget {
 
                 _SectionTitle(s.goals),
                 const SizedBox(height: 8),
-                AppCard(
-                  child: Column(
-                    children: [
-                      _SettingsTile(
-                        icon: Icons.water_drop_rounded,
-                        title: s.dailyWaterGoal,
-                        subtitle: '${user?['daily_water_goal_ml'] ?? 2000} ml',
-                        onTap: () {},
-                      ),
-                      const Divider(height: 1, indent: 56),
-                      _SettingsTile(
-                        icon: Icons.bedtime_rounded,
-                        title: s.sleepGoal,
-                        subtitle: '${user?['daily_sleep_goal_hours'] ?? 8} ${s.hours}',
-                        onTap: () {},
-                      ),
-                    ],
-                  ),
-                ),
+                _GoalsCard(s: s),
                 const SizedBox(height: 16),
 
                 _SectionTitle(locale == 'es' ? 'Notificaciones' : 'Notifications'),
@@ -485,6 +467,123 @@ class _SecretAvatarButtonState extends State<_SecretAvatarButton> {
             style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 22),
           ),
         ),
+      ),
+    );
+  }
+}
+
+// ── Goals Card ────────────────────────────────────────────────────────────────
+
+class _GoalsCard extends ConsumerStatefulWidget {
+  final S s;
+  const _GoalsCard({required this.s});
+
+  @override
+  ConsumerState<_GoalsCard> createState() => _GoalsCardState();
+}
+
+class _GoalsCardState extends ConsumerState<_GoalsCard> {
+  late int _waterMl;
+  late double _sleepH;
+
+  @override
+  void initState() {
+    super.initState();
+    final user = HiveStorage.getUser();
+    _waterMl = int.tryParse(user?['daily_water_goal_ml']?.toString() ?? '2000') ?? 2000;
+    _sleepH = double.tryParse(user?['daily_sleep_goal_hours']?.toString() ?? '8') ?? 8.0;
+  }
+
+  Future<void> _saveGoals({int? waterMl, double? sleepH}) async {
+    try {
+      final dio = ref.read(dioProvider);
+      final body = <String, String>{};
+      if (waterMl != null) body['daily_water_goal_ml'] = waterMl.toString();
+      if (sleepH != null) body['daily_sleep_goal_hours'] = sleepH.toString();
+      await dio.put('/auth/me', data: body);
+      // Update local cache
+      final user = HiveStorage.getUser() ?? {};
+      if (waterMl != null) user['daily_water_goal_ml'] = waterMl.toString();
+      if (sleepH != null) user['daily_sleep_goal_hours'] = sleepH.toString();
+      await HiveStorage.saveUser(user);
+      if (waterMl != null) setState(() => _waterMl = waterMl);
+      if (sleepH != null) setState(() => _sleepH = sleepH);
+    } catch (_) {}
+  }
+
+  Future<void> _pickWater(BuildContext context) async {
+    final options = [1000, 1500, 2000, 2500, 3000, 3500];
+    int selected = _waterMl;
+    final result = await showDialog<int>(
+      context: context,
+      builder: (_) => StatefulBuilder(
+        builder: (ctx, ss) => AlertDialog(
+          title: Text(widget.s.dailyWaterGoal),
+          content: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: options.map((ml) => ChoiceChip(
+              label: Text('$ml ml'),
+              selected: selected == ml,
+              onSelected: (_) => ss(() => selected = ml),
+            )).toList(),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx), child: Text(widget.s.cancel)),
+            FilledButton(onPressed: () => Navigator.pop(ctx, selected), child: Text(widget.s.save)),
+          ],
+        ),
+      ),
+    );
+    if (result != null) _saveGoals(waterMl: result);
+  }
+
+  Future<void> _pickSleep(BuildContext context) async {
+    final options = [6.0, 7.0, 7.5, 8.0, 8.5, 9.0];
+    double selected = _sleepH;
+    final result = await showDialog<double>(
+      context: context,
+      builder: (_) => StatefulBuilder(
+        builder: (ctx, ss) => AlertDialog(
+          title: Text(widget.s.sleepGoal),
+          content: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: options.map((h) => ChoiceChip(
+              label: Text('${h}h'),
+              selected: selected == h,
+              onSelected: (_) => ss(() => selected = h),
+            )).toList(),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx), child: Text(widget.s.cancel)),
+            FilledButton(onPressed: () => Navigator.pop(ctx, selected), child: Text(widget.s.save)),
+          ],
+        ),
+      ),
+    );
+    if (result != null) _saveGoals(sleepH: result);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      child: Column(
+        children: [
+          _SettingsTile(
+            icon: Icons.water_drop_rounded,
+            title: widget.s.dailyWaterGoal,
+            subtitle: '$_waterMl ml',
+            onTap: () => _pickWater(context),
+          ),
+          const Divider(height: 1, indent: 56),
+          _SettingsTile(
+            icon: Icons.bedtime_rounded,
+            title: widget.s.sleepGoal,
+            subtitle: '${_sleepH}h ${widget.s.hours}',
+            onTap: () => _pickSleep(context),
+          ),
+        ],
       ),
     );
   }
