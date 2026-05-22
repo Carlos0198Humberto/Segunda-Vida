@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/l10n/app_strings.dart';
+import '../../../../core/network/api_client.dart';
 import '../../../../core/services/notification_service.dart';
 import '../../../../core/storage/hive_storage.dart';
 import '../../../../core/theme/app_colors.dart';
