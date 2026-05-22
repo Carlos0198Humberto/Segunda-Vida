@@ -22,7 +22,13 @@
       "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\Humbe\\\\Desktop\\\\Segunda vida\" -Recurse -Directory -Name)",
       "Bash(Select-Object -First 30)",
       "Bash(xargs -I {} basename {})",
-      "PowerShell(New-Item *)"
+      "PowerShell(New-Item *)",
+      "PowerShell(head *)",
+      "PowerShell(flutter doctor *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(Remove-Item -Recurse -Force .git)"
     ]
   }
 }
