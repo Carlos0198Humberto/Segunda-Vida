@@ -3,7 +3,7 @@ class AppConstants {
 
   // ── Cambia esto con la URL que Railway te da al desplegar ──────────────────
   // Ej: 'https://segunda-vida-production.up.railway.app/api/v1'
-  static const String _railwayUrl = 'https://TU-APP.up.railway.app/api/v1';
+  static const String _railwayUrl = 'https://segunda-vida-hqvi.onrender.com/api/v1';
 
   // Solo para desarrollo local con Docker o servidor local
   static const String _devUrlAndroid = 'http://10.0.2.2:8000/api/v1';
