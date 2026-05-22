@@ -170,6 +170,7 @@ class VaultActions {
     double? heightCm,
     int? ageYears,
     int? ageMonths,
+    String? photoUrl,
     WidgetRef? ref,
   }) async {
     final response = await _dio.post(
@@ -184,6 +185,7 @@ class VaultActions {
         if (heightCm != null) 'height_cm': heightCm,
         if (ageYears != null) 'age_years': ageYears,
         if (ageMonths != null) 'age_months': ageMonths,
+        if (photoUrl != null) 'photo_url': photoUrl,
       },
     );
     _ref.invalidate(vaultRecordsProvider(profileId));

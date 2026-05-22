@@ -10,6 +10,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../shared/widgets/app_card.dart';
 import '../../../../shared/widgets/progress_ring.dart';
+import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 
 final healthSummaryProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   final dio = ref.watch(dioProvider);
@@ -383,6 +384,7 @@ class _SleepTab extends ConsumerWidget {
                                     await dio.delete('/health/sleep/${log['id']}');
                                     ref.invalidate(sleepLogsProvider);
                                     ref.invalidate(healthSummaryProvider);
+                                    ref.invalidate(dashboardProvider);
                                   }
                                 },
                               ),

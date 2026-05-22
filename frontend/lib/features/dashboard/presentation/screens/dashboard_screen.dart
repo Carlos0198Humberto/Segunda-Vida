@@ -624,7 +624,7 @@ class _DayReviewCard extends ConsumerWidget {
         final waterScore = data.waterPercentage.round().clamp(0, 100);
         final sleepScore = data.lastSleepHours != null
             ? (data.lastSleepHours! / data.sleepGoalHours * 100).round().clamp(0, 100)
-            : 50;
+            : 0;
         final productiveScore = (data.productiveHoursToday / 4 * 100).round().clamp(0, 100);
         final dayScore = ((habitScore + waterScore + sleepScore + productiveScore) / 4).round();
 

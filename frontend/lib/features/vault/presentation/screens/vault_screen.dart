@@ -1,7 +1,11 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/theme/app_colors.dart';
@@ -838,6 +842,7 @@ class _RecordTile extends ConsumerWidget {
     }
     final weightKg = record['weight_kg'];
     final heightCm = record['height_cm'];
+    final photoUrl = record['photo_url'] as String?;
 
     return Dismissible(
       key: Key(record['id'] as String),
@@ -926,6 +931,25 @@ class _RecordTile extends ConsumerWidget {
                   Text('${heightCm}cm', style: const TextStyle(color: Colors.white38, fontSize: 11)),
                 ],
               ]),
+            ],
+            if (photoUrl != null && photoUrl.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: photoUrl.startsWith('data:image')
+                    ? Image.memory(
+                        base64Decode(photoUrl.split(',').last),
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: 160,
+                      )
+                    : Image.network(
+                        photoUrl,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: 160,
+                      ),
+              ),
             ],
           ])),
         ]),
@@ -1132,6 +1156,7 @@ class _AddRecordSheetState extends State<_AddRecordSheet> {
   final _heightCtrl = TextEditingController();
   DateTime _date = DateTime.now();
   bool _saving = false;
+  Uint8List? _photoBytes;
 
   @override
   void dispose() {
@@ -1140,10 +1165,46 @@ class _AddRecordSheetState extends State<_AddRecordSheet> {
     super.dispose();
   }
 
+  Future<void> _pickPhoto(ImageSource source) async {
+    final picker = ImagePicker();
+    final file = await picker.pickImage(source: source, imageQuality: 70, maxWidth: 1200, maxHeight: 1200);
+    if (file != null) {
+      final bytes = await file.readAsBytes();
+      setState(() => _photoBytes = bytes);
+    }
+  }
+
+  void _showPhotoOptions() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF1A1030),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (_) => SafeArea(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          const SizedBox(height: 8),
+          ListTile(
+            leading: const Icon(Icons.photo_library_rounded, color: Colors.white70),
+            title: const Text('Gallery', style: TextStyle(color: Colors.white)),
+            onTap: () { Navigator.pop(context); _pickPhoto(ImageSource.gallery); },
+          ),
+          ListTile(
+            leading: const Icon(Icons.camera_alt_rounded, color: Colors.white70),
+            title: const Text('Camera', style: TextStyle(color: Colors.white)),
+            onTap: () { Navigator.pop(context); _pickPhoto(ImageSource.camera); },
+          ),
+          const SizedBox(height: 8),
+        ]),
+      ),
+    );
+  }
+
   Future<void> _save() async {
     if (_titleCtrl.text.trim().isEmpty) return;
     setState(() => _saving = true);
     try {
+      final photoUrl = _photoBytes != null
+          ? 'data:image/jpeg;base64,${base64Encode(_photoBytes!)}'
+          : null;
       await widget.ref.read(vaultActionsProvider).createRecord(
         profileId: widget.profileId,
         eventDate: _date,
@@ -1153,6 +1214,7 @@ class _AddRecordSheetState extends State<_AddRecordSheet> {
         emoji: _emojiCtrl.text.trim().isEmpty ? null : _emojiCtrl.text.trim(),
         weightKg: double.tryParse(_weightCtrl.text),
         heightCm: double.tryParse(_heightCtrl.text),
+        photoUrl: photoUrl,
         ref: widget.ref,
       );
       if (mounted) Navigator.pop(context);
@@ -1264,6 +1326,61 @@ class _AddRecordSheetState extends State<_AddRecordSheet> {
             const SizedBox(width: 10),
             Expanded(child: _DarkField(controller: _heightCtrl, label: 'Height (cm)', hint: '72', icon: Icons.height_rounded, keyboardType: TextInputType.number)),
           ]),
+          const SizedBox(height: 12),
+          // Photo picker
+          GestureDetector(
+            onTap: _photoBytes != null ? null : _showPhotoOptions,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              height: _photoBytes != null ? 180 : 60,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.06),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.white12),
+              ),
+              child: _photoBytes != null
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          Image.memory(_photoBytes!, fit: BoxFit.cover),
+                          Positioned(
+                            top: 8, right: 8,
+                            child: GestureDetector(
+                              onTap: () => setState(() => _photoBytes = null),
+                              child: Container(
+                                decoration: const BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
+                                padding: const EdgeInsets.all(6),
+                                child: const Icon(Icons.close_rounded, color: Colors.white, size: 18),
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 8, right: 8,
+                            child: GestureDetector(
+                              onTap: _showPhotoOptions,
+                              child: Container(
+                                decoration: const BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
+                                padding: const EdgeInsets.all(6),
+                                child: const Icon(Icons.edit_rounded, color: Colors.white, size: 16),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.add_photo_alternate_rounded, color: Colors.white38, size: 22),
+                        SizedBox(width: 8),
+                        Text('Add photo (optional)', style: TextStyle(color: Colors.white38, fontSize: 13)),
+                      ],
+                    ),
+            ),
+          ),
           const SizedBox(height: 24),
           SizedBox(
             width: double.infinity,

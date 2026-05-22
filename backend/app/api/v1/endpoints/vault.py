@@ -199,6 +199,7 @@ def get_timeline(
             "emoji": r.emoji,
             "weight_kg": float(r.weight_kg) if r.weight_kg else None,
             "height_cm": float(r.height_cm) if r.height_cm else None,
+            "photo_url": r.photo_url,
             "age_years": r.age_years,
             "age_months": r.age_months,
         })

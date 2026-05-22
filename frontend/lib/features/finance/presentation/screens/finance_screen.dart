@@ -200,8 +200,10 @@ class _TransactionsTab extends ConsumerWidget {
             // Filter chips
             Row(
               children: [
-                Text(s.transactions, style: Theme.of(context).textTheme.headlineMedium),
-                const Spacer(),
+                Flexible(
+                  child: Text(s.transactions, style: Theme.of(context).textTheme.headlineMedium, overflow: TextOverflow.ellipsis),
+                ),
+                const SizedBox(width: 8),
                 _FilterChip(label: s.allTime, selected: filter == 'all', onTap: () => onFilterChange('all')),
                 const SizedBox(width: 6),
                 _FilterChip(label: s.income, selected: filter == 'income', onTap: () => onFilterChange('income')),

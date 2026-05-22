@@ -404,7 +404,7 @@ class _MultiYearTab extends ConsumerStatefulWidget {
 }
 
 class _MultiYearTabState extends ConsumerState<_MultiYearTab> {
-  int _yearsBack = 5;
+  int _yearsBack = 3;
   String _metric = 'net_savings';
 
   static const _metrics = [
